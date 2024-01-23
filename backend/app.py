@@ -1,8 +1,10 @@
 import os
 import pickle
 from reverseProxy import proxyRequest
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from classifier import get_prediction
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 MODE = os.getenv('FLASK_ENV')
 DEV_SERVER_URL = 'http://localhost:3000/'
@@ -16,7 +18,6 @@ if MODE == "development":
 # Load the model from the pickle file
 with open('../facial_keypoints.p', 'rb') as f:
     model = pickle.load(f)
-
 
 @app.route('/')
 @app.route('/<path:path>')
@@ -32,3 +33,6 @@ def predict():
         file = request.files['image']
 
         return get_prediction(file, model)
+    else:
+        print('No file uploaded!')
+        return 'No file uploaded!', 400
